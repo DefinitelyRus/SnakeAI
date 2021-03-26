@@ -200,7 +200,7 @@ def redrawWindow(surface):
     #Draws the snake on the screen.
     s.draw(surface)
     
-    #
+    #Draws the snack on the screen.
     snack.draw(surface)
     
     #Draws a grid on the game window with a specified size and # of rows.
@@ -298,8 +298,11 @@ def main():
         redrawWindow(win)
 
 try:
+    #Starts the game.
     main()
 except pygame.error as e:
+    #Catches a false error when the game is closed.
     print(f"Game closed.\nFalse error: \"{str(e)}\"")
 except Exception as e:
+    #Catches every other error.
     print(f"Exception caught: {str(e)}")
