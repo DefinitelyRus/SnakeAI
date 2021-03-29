@@ -6,6 +6,10 @@ import pygame
 import tkinter as tk
 from tkinter import messagebox
 
+import sys
+sys.path.append("../")
+from aiModules import aiScript
+
 aiCon = True
 
 #For debugging
@@ -29,16 +33,11 @@ class cube(object):
         
         
     def move(self, dirnx, dirny):
-        global dirx, diry
         
         #Sets the object's direction variable equal to this method's arguments.
         self.dirnx = dirnx
         self.dirny = dirny
         self.pos = (self.pos[0] + self.dirnx, self.pos[1] + self.dirny)
-        
-        #For debugging
-        dirx = self.dirnx
-        diry = self.dirny
     
     def draw(self, surface, eyes=False):
         dis = self.w // self.rows
@@ -75,7 +74,7 @@ class snake(object):
         self.dirny = 1
     
     def move(self):
-        
+        global dirx, diry, headPosX, headPosY
         #---------------INPUT CONTROLS---------------
         
         #I don't know what this does -Rus
@@ -115,7 +114,29 @@ class snake(object):
                     self.turns[self.head.pos[:]] = [self.dirnx, self.dirny]
         else:
             #---------------AI CONTROLS---------------
+            print()
             aiScript.check()
+            #print(f"Pre-check... (x: {self.dirnx} y: {self.dirny})")
+            self.dirnx = dirx
+            #print(f"x: {self.dirnx}")
+            self.dirny = diry
+            #print(f"y: {self.dirny}\n")
+            self.turns[self.head.pos[:]] = [self.dirnx, self.dirny]
+            aiScript.hdX = self.head.pos[0]
+            aiScript.hdY = self.head.pos[1]
+            
+            #For debugging:
+            if True:#testmd == True:
+                direction = str()
+                if dirx == 1:
+                    direction = "Right"
+                elif dirx == -1:
+                    direction = "Left"
+                elif diry == 1:
+                    direction = "Down"
+                elif diry == -1:
+                    direction = "Up"
+                print(f"Dir: {direction} (X: {dirx}, Y: {diry})")
         
         #---------------MOVEMENT----------------
         
@@ -154,10 +175,14 @@ class snake(object):
                 else: c.move(c.dirnx, c.dirny)
     
     def reset(self, pos):
+        global headPosX, headPosY
         """
         Called when the snake collides with itself.
         Resets the game to its starting conditions.
         """
+        headPosX = pos[0]
+        headPosY = pos[1]
+        print(f"{headPosX}, {headPosY}")
         self.head = cube(pos)
         self.body = []
         self.body.append(self.head)
@@ -236,20 +261,25 @@ def redrawWindow(surface):
     pygame.display.update()
 
 def randomSnack(rows, items):
+    global snackx, snacky
     positions = items.body
     
     while True:
-        x = random.randrange(rows)
-        y = random.randrange(rows)
+        snackx = random.randrange(rows)
+        snacky = random.randrange(rows)
+        
+        aiScript.snX = snackx
+        aiScript.snY = snacky
+        print(f"New Snack Pos: {aiScript.snX}, {aiScript.snY}")
         
         #Checks if the randomly chosen position is where the snake is.
         #Makes sure that the snack doesn't spawn on the snake.
-        if len(list(filter(lambda z:z.pos == (x,y), positions))) > 0:
+        if len(list(filter(lambda z:z.pos == (snackx,snacky), positions))) > 0:
             continue
         else:
             break
         
-    return (x,y)
+    return (snackx,snacky)
 
 def messageBox(subject, content):
     #Creates a new Tk object named root.
@@ -295,7 +325,7 @@ def main():
     while flag:
         #Delays the time by 50ms to avoid absurd playing speeds.
         #Lower number = faster updates
-        pygame.time.delay(120)
+        pygame.time.delay(900)
         
         #Forces the game to update 10 ticks per second.
         #Lower number = slower updates
@@ -322,24 +352,23 @@ def main():
         #Updates the frame
         redrawWindow(win)
         
-        #For debugging:
-        if testmd == True:
-            direction = str()
-            if dirx == 1:
-                direction = "Right"
-            elif dirx == -1:
-                direction = "Left"
-            elif diry == 1:
-                direction = "Down"
-            elif diry == -1:
-                direction = "Up"
-            print(f"Direction: {direction} (X: {dirx}, Y: {diry})")
+
+def init():
+    global dirx, diry, snackx, snacky, headPosX, headPosY
+
+
+dirx = 0
+diry = 0
+snackx = 0
+snacky = 0
+headPosX = 0
+headPosY = 0
+coords = []
 
 def start(PC):
+    global aiCon
+    aiCon = PC
     try:
-        global aiCon
-        aiCon = PC
-        
         #Checks if the script is ran as executable or as a package.
         if testmd == True:
             print("---------------------\nRUNNING IN DEBUG MODE\n---------------------")
@@ -351,9 +380,12 @@ def start(PC):
         #Catches a false error when the game is closed.
         print(f"Game closed.\nFalse error: \"{str(e)}\"")
         quit()
-    except Exception as e:
-        #Catches every other error.
-        print(f"Exception caught: {str(e)}")
-        quit()
+#     except Exception as e:
+#         #Catches every other error.
+#         print(f"Exception caught: {str(e)}")
+#         quit()
 
-if testmd == True: start(False)
+if testmd == True:
+    sys.path.append("../")
+    from aiModules import aiScript
+    aiScript.run()

@@ -1,7 +1,16 @@
-from gameModules import snakeGame
+import sys
+import random
+sys.path.append("../")
+from gameModules import snakeGame as game
+
+# x = 0
+# y = 0
+# xl = [0, 0, -1, 1]
+# yl = [-1, 1]
+
 
 def run():
-    snakeGame.start(True)
+    game.start(True)
     pass
 
 def check():
@@ -23,4 +32,51 @@ def check():
     Note:
     This process will continue until the AI loses. This does not use Machine Learning and cannot improve from its mistakes.
     """
-    pass
+    
+    #global snX, snY, hdX, hdY
+    snX = game.snackx
+    snY = game.snacky
+    hdX = game.headPosX
+    hdY = game.headPosY
+    dist = [hdX - snX, hdY - snY]
+    print(dist)
+    print(f"Head: {hdX}, {hdY}\nSnack: {snX}, {snY}")
+    if abs(hdX - snX) > abs(hdY - snY):
+        print(f"Checking vertical.")
+        #If the distance between the snake and the snack is further horizontally than vertically...
+        if hdY - snY > 0:
+            #If the snack is below the snake, look down.
+            print(f"Food is below. Moving down. Y: {hdY-snY}; {dist}")
+            game.diry = 1
+            game.dirx = 0
+            
+            hdY += 1
+        elif hdY - snY < 0:
+            #If the snack is above the snake, look up.
+            print(f"Food is above. Moving up. Y: {hdY-snY}; {dist}")
+            game.diry = -1
+            game.dirx = 0
+            
+            hdY -= 1
+    else:# abs(snX - hdX) < abs(snY - hdY):
+        print(f"Checking horizontal.")
+        #If the distance between the snake and the snack is further vertically than horizontally...
+        if hdX - snX > 0:
+            #If the snack to the right of the snake, look right.
+            print(f"Food at right. Moving right. X: {snX-hdX}; {dist}")
+            game.dirx = 1
+            game.diry = 0
+            
+            hdX += 1
+        elif hdX - snX < 0:
+            #If the snack to the left of the snake, look left.
+            print(f"Food at left. Moving left. X: {snX-hdX}; {dist}")
+            game.dirx = -1
+            game.diry = 0
+            
+            hdX -= 1
+#     game.dirx = random.choice(xl)
+#     if game.dirx == 0:
+#         game.diry = random.choice(yl)
+#     
+#     pass
