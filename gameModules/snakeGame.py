@@ -10,12 +10,14 @@ import sys
 sys.path.append("../")
 from aiModules import aiScript
 
-aiCon = True
+aiCon = bool()
 
 #For debugging
 if __name__ == "__main__":
     testmd = True
+    print("---------------------\nRUNNING IN DEBUG MODE\n---------------------")
 else:
+    print("-------------------\nRUNNING NORMAL MODE\n-------------------")
     testmd = False
     
 class cube(object):
@@ -116,17 +118,16 @@ class snake(object):
             #---------------AI CONTROLS---------------
             print()
             aiScript.check()
-            #print(f"Pre-check... (x: {self.dirnx} y: {self.dirny})")
             self.dirnx = dirx
-            #print(f"x: {self.dirnx}")
             self.dirny = diry
-            #print(f"y: {self.dirny}\n")
             self.turns[self.head.pos[:]] = [self.dirnx, self.dirny]
             aiScript.hdX = self.head.pos[0]
             aiScript.hdY = self.head.pos[1]
             
+            print(f"Parts: {self.body}")
+            
             #For debugging:
-            if True:#testmd == True:
+            if testmd == True:
                 direction = str()
                 if dirx == 1:
                     direction = "Right"
@@ -325,7 +326,7 @@ def main():
     while flag:
         #Delays the time by 50ms to avoid absurd playing speeds.
         #Lower number = faster updates
-        pygame.time.delay(900)
+        pygame.time.delay(20)
         
         #Forces the game to update 10 ticks per second.
         #Lower number = slower updates
@@ -345,8 +346,9 @@ def main():
             #Checks if the head collides with any other part of the body.
             if s.body[x].pos in list(map(lambda z:z.pos, s.body[x+1:])):
                 print(f"Score: {len(s.body)*10}")
-                messageBox(f"You lost with {len(s.body)*10} points!", "Play again?")
-                s.reset((10,10))
+                if False:
+                    messageBox(f"You lost with {len(s.body)*10} points!", "Play again?")
+                s.reset((random.randrange(19),random.randrange(19)))
                 break
         
         #Updates the frame
@@ -369,21 +371,15 @@ def start(PC):
     global aiCon
     aiCon = PC
     try:
-        #Checks if the script is ran as executable or as a package.
-        if testmd == True:
-            print("---------------------\nRUNNING IN DEBUG MODE\n---------------------")
-            main()
-        else:
-            print("-------------------\nRUNNING NORMAL MODE\n-------------------")
-            main()
+        main()
     except pygame.error as e:
         #Catches a false error when the game is closed.
         print(f"Game closed.\nFalse error: \"{str(e)}\"")
         quit()
-#     except Exception as e:
-#         #Catches every other error.
-#         print(f"Exception caught: {str(e)}")
-#         quit()
+    except Exception as e:
+        #Catches every other error.
+        print(f"Exception caught: {str(e)}")
+        quit()
 
 if testmd == True:
     sys.path.append("../")
