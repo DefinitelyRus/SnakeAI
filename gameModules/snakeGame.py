@@ -117,17 +117,9 @@ class snake(object):
         else:
             #---------------AI CONTROLS---------------
             print()
-            aiScript.check()
-            self.dirnx = dirx
-            self.dirny = diry
-            self.turns[self.head.pos[:]] = [self.dirnx, self.dirny]
-            aiScript.hdX = self.head.pos[0]
-            aiScript.hdY = self.head.pos[1]
-            
-            print(f"Parts: {self.body}")
-            
+            plist = []
             #For debugging:
-            if testmd == True:
+            if True:# testmd == True:
                 direction = str()
                 if dirx == 1:
                     direction = "Right"
@@ -138,6 +130,23 @@ class snake(object):
                 elif diry == -1:
                     direction = "Up"
                 print(f"Dir: {direction} (X: {dirx}, Y: {diry})")
+            
+                for i, c in enumerate(self.body):
+                    plist.append(c.pos[:])
+                
+                print(f"Parts: {plist}")
+            
+            #Auto controls
+            aiScript.check()
+            self.dirnx = dirx
+            self.dirny = diry
+            self.turns[self.head.pos[:]] = [self.dirnx, self.dirny]
+            aiScript.hdX = self.head.pos[0]
+            aiScript.hdY = self.head.pos[1]
+            
+            
+            
+            
         
         #---------------MOVEMENT----------------
         
@@ -239,15 +248,16 @@ def drawGrid(w, rows, surface):
         
         #Draws a white line on the game window. #Edit: Changed to mint green.
         #This line extends from the 0th pixel to the window width.
-        pygame.draw.line(surface, (147,212,135), (x, 0), (x, w))
-        pygame.draw.line(surface, (147,212,135), (0, y), (w, y))
+        #pygame.draw.line(surface, (147,212,135), (x, 0), (x, w))
+        #pygame.draw.line(surface, (147,212,135), (0, y), (w, y))
 
 def redrawWindow(surface):
     global width, rows, s, snack
     
     #Sets the window background to black (0,0,0).
     #Edit: Changed to mint green.
-    surface.fill((153,217,140))
+    #surface.fill((153,217,140))
+    surface.fill((20,20,20))
     
     #Draws the snake on the screen.
     s.draw(surface)
@@ -318,7 +328,7 @@ def main():
     s = snake((132,169,140), (10,10))
     
     #Creates a snack object.
-    snack = cube(randomSnack(rows, s), color = (158,42,43))
+    snack = cube(randomSnack(rows, s), color = (random.randrange(50,255),random.randrange(50,255),random.randrange(50,255)))#(158,42,43))
     
     #Creates a clock object.
     clock = pygame.time.Clock()
@@ -326,11 +336,11 @@ def main():
     while flag:
         #Delays the time by 50ms to avoid absurd playing speeds.
         #Lower number = faster updates
-        pygame.time.delay(20)
+        #pygame.time.delay(20)
         
         #Forces the game to update 10 ticks per second.
         #Lower number = slower updates
-        clock.tick(60)
+        clock.tick(10)
         s.move()
         
         #Checks if the snack is in the same position as the snake's head.
@@ -340,10 +350,34 @@ def main():
             s.addCube()
             
             #Creates a new snack object.
-            snack = cube(randomSnack(rows, s), color = (158,42,43))
+            snack = cube(randomSnack(rows, s), color = (random.randrange(50,255),random.randrange(50,255),random.randrange(50,255)))
         
         for x in range(len(s.body)):
             #Checks if the head collides with any other part of the body.
+            cldx, cldy = True, True
+            
+            
+            #If the head (pos) is headed towards a body part based on the current direction,
+            #turn to the direction closest to the snack.
+            if s.body[x] == s.body[0] and dirx != 0 and s.body[0].pos[1] + dirx == s.body[x].pos[1]:
+                print(f"X will collide! S: {s.body[0].pos[1] + dirx}, B: {s.body[x].pos[1]}")
+                
+            else: cldx = False
+            
+            
+            if s.body[x] == s.body[0] and diry != 0 and s.body[0].pos[0] + diry == s.body[x].pos[0]:
+                print(f"X will collide! S: {s.body[0].pos[0] + diry}, B: {s.body[x].pos[0]}")
+                
+            else: cldy = False
+            
+            
+            if cldx == False and cldy == False:
+                print(f"H: {s.body[0].pos[1]}, {s.body[0].pos[0]}; B: {s.body[x].pos[1]}, {s.body[x].pos[0]}; Index: {x}")
+                
+            #print(f"x: {s.body[x].pos[1]} y: {s.body[x].pos[0]}")
+#                 if s.body[0].pos == s.body[x].pos[0] + dirx:
+#                     print(f"{s.body[0].pos} will collide with {s.body[x].pos}")
+            
             if s.body[x].pos in list(map(lambda z:z.pos, s.body[x+1:])):
                 print(f"Score: {len(s.body)*10}")
                 if False:
@@ -376,10 +410,10 @@ def start(PC):
         #Catches a false error when the game is closed.
         print(f"Game closed.\nFalse error: \"{str(e)}\"")
         quit()
-    except Exception as e:
-        #Catches every other error.
-        print(f"Exception caught: {str(e)}")
-        quit()
+#     except Exception as e:
+#         #Catches every other error.
+#         print(f"Exception caught: {str(e)}")
+#         quit()
 
 if testmd == True:
     sys.path.append("../")

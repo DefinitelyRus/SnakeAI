@@ -10,6 +10,9 @@ def run():
     game.start(True)
     pass
 
+def check2(sX, sY, parts = []):
+    return True
+
 def check():
     """
     Stage 1:
@@ -34,21 +37,20 @@ def check():
     snX = game.snackx
     snY = game.snacky
     dist = [hdX - snX, hdY - snY]
+    willCol = check2(snX, snY)
     
-    print()
-    
-    for c in dist:
+    for c in range(2):
         if snX - hdX == 0:
-            if snY - hdY > 0:
+            if snY - hdY > 0:# and willCol == False:
                 #If the snack is below the snake, look down.
-                print(f"Food is below. Moving down. Y: {snY-hdY}; {dist}")
+                #print(f"Food is below. Moving down. Y: {snY-hdY}; {dist}")
                 game.diry = 1
                 game.dirx = 0
                 
                 hdY += 1
             elif snY - hdY < 0:
                 #If the snack is above the snake, look up.
-                print(f"Food is above. Moving up. Y: {snY-hdY}; {dist}")
+                #print(f"Food is above. Moving up. Y: {snY-hdY}; {dist}")
                 game.diry = -1
                 game.dirx = 0
                 
@@ -56,18 +58,20 @@ def check():
                 
         elif snX - hdX > 0:
             #If the snack to the right of the snake, look right.
-            print(f"Food at right. Moving right. X: {snX-hdX}; {dist}")
+            #print(f"Food at right. Moving right. X: {snX-hdX}; {dist}")
             game.dirx = 1
             game.diry = 0
             
             hdX += 1
         elif snX - hdX < 0:
             #If the snack to the left of the snake, look left.
-            print(f"Food at left. Moving left. X: {snX-hdX}; {dist}")
+            #print(f"Food at left. Moving left. X: {snX-hdX}; {dist}")
             game.dirx = -1
             game.diry = 0
             
             hdX -= 1
-
+    
+    print(f"Hd: {hdX}, {hdY}")
+    
 if __name__ == "__main__":
     run()
