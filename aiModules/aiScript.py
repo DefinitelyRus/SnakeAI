@@ -71,7 +71,7 @@ def check():
             
             hdX -= 1
     
-    print(f"Hd: {hdX}, {hdY}")
+    #print(f"Hd: {hdX}, {hdY}")
     
 if __name__ == "__main__":
     run()

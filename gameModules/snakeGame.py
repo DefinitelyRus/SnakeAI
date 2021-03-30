@@ -10,16 +10,7 @@ import sys
 sys.path.append("../")
 from aiModules import aiScript
 
-aiCon = bool()
-
-#For debugging
-if __name__ == "__main__":
-    testmd = True
-    print("---------------------\nRUNNING IN DEBUG MODE\n---------------------")
-else:
-    print("-------------------\nRUNNING NORMAL MODE\n-------------------")
-    testmd = False
-    
+aiCon, testmd = bool(), bool()
 class cube(object):
     rows = 20
     w = 500
@@ -129,12 +120,10 @@ class snake(object):
                     direction = "Down"
                 elif diry == -1:
                     direction = "Up"
-                print(f"Dir: {direction} (X: {dirx}, Y: {diry})")
-            
                 for i, c in enumerate(self.body):
                     plist.append(c.pos[:])
-                
-                print(f"Parts: {plist}")
+                print(f"Dir: {direction} (X: {dirx}, Y: {diry}); Parts: {plist}")
+            
             
             #Auto controls
             aiScript.check()
@@ -192,7 +181,6 @@ class snake(object):
         """
         headPosX = pos[0]
         headPosY = pos[1]
-        print(f"{headPosX}, {headPosY}")
         self.head = cube(pos)
         self.body = []
         self.body.append(self.head)
@@ -325,7 +313,7 @@ def main():
     win = pygame.display.set_mode((width, height))
     
     #Creates a snake object. First parameter is the color, second is the position.
-    s = snake((132,169,140), (10,10))
+    s = snake((132,169,140), (random.randrange(20),random.randrange(20)))
     
     #Creates a snack object.
     snack = cube(randomSnack(rows, s), color = (random.randrange(50,255),random.randrange(50,255),random.randrange(50,255)))#(158,42,43))
@@ -340,7 +328,7 @@ def main():
         
         #Forces the game to update 10 ticks per second.
         #Lower number = slower updates
-        clock.tick(10)
+        clock.tick(60)
         s.move()
         
         #Checks if the snack is in the same position as the snake's head.
@@ -359,30 +347,37 @@ def main():
             
             #If the head (pos) is headed towards a body part based on the current direction,
             #turn to the direction closest to the snack.
-            if s.body[x] == s.body[0] and dirx != 0 and s.body[0].pos[1] + dirx == s.body[x].pos[1]:
-                print(f"X will collide! S: {s.body[0].pos[1] + dirx}, B: {s.body[x].pos[1]}")
+            if s.body[x] != s.body[0] and dirx != 0 and s.body[0].pos[0] + s.dirnx*1 == s.body[x].pos[0]:
+                print(f"Head {s.body[0].pos} will collide with X:{x}! S: {s.body[0].pos[0]}+1, B: {s.body[x].pos}")
                 
             else: cldx = False
             
-            
-            if s.body[x] == s.body[0] and diry != 0 and s.body[0].pos[0] + diry == s.body[x].pos[0]:
-                print(f"X will collide! S: {s.body[0].pos[0] + diry}, B: {s.body[x].pos[0]}")
+            if s.body[x] != s.body[0] and diry != 0 and s.body[0].pos[1] + s.dirny*1 == s.body[x].pos[1]:
+                print(f"Head {s.body[0].pos} will collide with Y:{x}! S: {s.body[0].pos[1]}+1, B: {s.body[x].pos}")
                 
             else: cldy = False
             
-            
-            if cldx == False and cldy == False:
-                print(f"H: {s.body[0].pos[1]}, {s.body[0].pos[0]}; B: {s.body[x].pos[1]}, {s.body[x].pos[0]}; Index: {x}")
+            """
+            Known problems:
+            - Can't detect when AI turns directly backwards.
+            - 
+            """
+            if x == 0:
+                print(f"H: {s.body[0].pos[0]}, {s.body[0].pos[1]}")
+            if cldx == False and cldy == False and x > 1:
+                #print(f"B: ")
+                print(f"B: {s.body[x].pos[0]}, {s.body[x].pos[1]}; Index: {x}")
                 
             #print(f"x: {s.body[x].pos[1]} y: {s.body[x].pos[0]}")
 #                 if s.body[0].pos == s.body[x].pos[0] + dirx:
 #                     print(f"{s.body[0].pos} will collide with {s.body[x].pos}")
             
             if s.body[x].pos in list(map(lambda z:z.pos, s.body[x+1:])):
-                print(f"Score: {len(s.body)*10}")
+                print(f"\nGAME LOST!\n")
+                quit()
                 if False:
                     messageBox(f"You lost with {len(s.body)*10} points!", "Play again?")
-                s.reset((random.randrange(19),random.randrange(19)))
+                s.reset((random.randrange(20),random.randrange(20)))
                 break
         
         #Updates the frame
@@ -415,7 +410,17 @@ def start(PC):
 #         print(f"Exception caught: {str(e)}")
 #         quit()
 
-if testmd == True:
+if __name__ == "__main__":
     sys.path.append("../")
     from aiModules import aiScript
+    testmd = True
+    print("---------------DEBUG MODE---------------")
     aiScript.run()
+elif __name__ != "__main__" and testmd == True:
+    sys.path.append("../")
+    from aiModules import aiScript
+    testmd = True
+    aiScript.run()
+else:
+    print("---------------PLAY MODE---------------")
+    testmd == False
