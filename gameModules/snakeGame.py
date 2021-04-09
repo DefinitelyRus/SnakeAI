@@ -328,7 +328,7 @@ def main():
         
         #Forces the game to update 10 ticks per second.
         #Lower number = slower updates
-        clock.tick(60)
+        clock.tick(10)
         s.move()
         
         #Checks if the snack is in the same position as the snake's head.
@@ -374,7 +374,7 @@ def main():
             
             if s.body[x].pos in list(map(lambda z:z.pos, s.body[x+1:])):
                 print(f"\nGAME LOST!\n")
-                quit()
+                #quit()
                 if False:
                     messageBox(f"You lost with {len(s.body)*10} points!", "Play again?")
                 s.reset((random.randrange(20),random.randrange(20)))
