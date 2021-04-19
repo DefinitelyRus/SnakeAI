@@ -10,11 +10,19 @@ import sys
 sys.path.append("../")
 from aiModules import aiScript
 
+rows = 54
+width = 1080
+height = 1080
+
+longest = 0
+loseMsg = f"ERROR NO_END_MSG"
+
 aiCon, testmd = bool(), bool()
 class cube(object):
-    rows = 20
-    w = 500
+    global width
     
+    w = height
+    rows = 54
     def __init__(self, start, dirnx=1, dirny=0, color=(132,169,140)):
         
         #Initializes a cube object.
@@ -108,6 +116,16 @@ class snake(object):
         else:
             #---------------AI CONTROLS---------------
             print()
+            
+            #Auto controls
+            aiScript.check()
+            self.dirnx = dirx
+            self.dirny = diry
+            self.turns[self.head.pos[:]] = [self.dirnx, self.dirny]
+            aiScript.hdX = self.head.pos[0]
+            aiScript.hdY = self.head.pos[1]
+            
+            
             plist = []
             #For debugging:
             if True:# testmd == True:
@@ -123,17 +141,6 @@ class snake(object):
                 for i, c in enumerate(self.body):
                     plist.append(c.pos[:])
                 print(f"Dir: {direction} (X: {dirx}, Y: {diry}); Parts: {plist}")
-            
-            
-            #Auto controls
-            aiScript.check()
-            self.dirnx = dirx
-            self.dirny = diry
-            self.turns[self.head.pos[:]] = [self.dirnx, self.dirny]
-            aiScript.hdX = self.head.pos[0]
-            aiScript.hdY = self.head.pos[1]
-            
-            
             
             
         
@@ -236,8 +243,8 @@ def drawGrid(w, rows, surface):
         
         #Draws a white line on the game window. #Edit: Changed to mint green.
         #This line extends from the 0th pixel to the window width.
-        #pygame.draw.line(surface, (147,212,135), (x, 0), (x, w))
-        #pygame.draw.line(surface, (147,212,135), (0, y), (w, y))
+        #pygame.draw.line(surface, (22,22,22), (x, 0), (x, w))
+        #pygame.draw.line(surface, (22,22,22), (0, y), (w, y))
 
 def redrawWindow(surface):
     global width, rows, s, snack
@@ -300,20 +307,15 @@ def messageBox(subject, content):
         pass
 
 def main():
-    global width, rows, s, snack, aiCon, dirnx, dirny
+    global width, rows, s, snack, aiCon, dirnx, dirny, longest, loseMsg
     
-    #Size of the window (in pixels)
-    width = 500
-    height = width  #Same value as width (500). 
-    #height variable is redundant in this context, but I kept it to avoid confusion. -Rus
-    rows = 20
     flag = True
     
     #Creates a window object for displaying.
     win = pygame.display.set_mode((width, height))
     
     #Creates a snake object. First parameter is the color, second is the position.
-    s = snake((132,169,140), (random.randrange(20),random.randrange(20)))
+    s = snake((132,169,140), (random.randrange(rows),random.randrange(rows)))
     
     #Creates a snack object.
     snack = cube(randomSnack(rows, s), color = (random.randrange(50,255),random.randrange(50,255),random.randrange(50,255)))#(158,42,43))
@@ -324,11 +326,11 @@ def main():
     while flag:
         #Delays the time by 50ms to avoid absurd playing speeds.
         #Lower number = faster updates
-        #pygame.time.delay(20)
+        #pygame.time.delay(0)
         
         #Forces the game to update 10 ticks per second.
         #Lower number = slower updates
-        clock.tick(60)
+        #clock.tick(6000)
         s.move()
         
         #Checks if the snack is in the same position as the snake's head.
@@ -347,13 +349,34 @@ def main():
             
             #If the head (pos) is headed towards a body part based on the current direction,
             #turn to the direction closest to the snack.
-            if s.body[x] != s.body[0] and dirx != 0 and s.body[0].pos[0] + s.dirnx*1 == s.body[x].pos[0]:
-                print(f"Head {s.body[0].pos} will collide with X:{x}! S: {s.body[0].pos[0]}+1, B: {s.body[x].pos}")
+            isNotHeadX = s.body[x] != s.body[0]
+            not0X = dirx != 0
+            willCollideX = s.body[0].pos[0] + s.dirnx*0 == s.body[x].pos[0]
+            
+            isNotHeadY = s.body[x] != s.body[0]
+            not0Y = diry != 0
+            willCollideY = s.body[0].pos[1] + s.dirny*0 == s.body[x].pos[1]
+            if isNotHeadX and not0X and willCollideX:
+                print(f"Head {s.body[0].pos} will collide with X:{x}! S: {s.body[0].pos[0]}+{s.dirnx}, B: {s.body[x].pos}, NoGo: {aiScript.noGo}")
+                #aiScript.noGo = (s.dirnx, s.dirny)
+                #aiScript.check()
+#                 s.dirnx = dirx
+#                 s.dirny = diry
+#                 s.turns[s.head.pos[:]] = [s.dirnx, s.dirny]
+#                 aiScript.hdX = s.head.pos[0]
+#                 aiScript.hdY = s.head.pos[1]
                 
             else: cldx = False
             
-            if s.body[x] != s.body[0] and diry != 0 and s.body[0].pos[1] + s.dirny*1 == s.body[x].pos[1]:
-                print(f"Head {s.body[0].pos} will collide with Y:{x}! S: {s.body[0].pos[1]}+1, B: {s.body[x].pos}")
+            if isNotHeadY and not0Y and willCollideY:
+                print(f"Head {s.body[0].pos} will collide with Y:{x}! S: {s.body[0].pos[1]}+{s.dirny}, B: {s.body[x].pos}, NoGo: {aiScript.noGo}")
+                #aiScript.noGo = (s.dirnx, s.dirny)
+                #aiScript.check()
+#                 s.dirnx = dirx
+#                 s.dirny = diry
+#                 s.turns[s.head.pos[:]] = [s.dirnx, s.dirny]
+#                 aiScript.hdX = s.head.pos[0]
+#                 aiScript.hdY = s.head.pos[1]
                 
             else: cldy = False
             
@@ -364,7 +387,7 @@ def main():
             """
             if x == 0:
                 print(f"H: {s.body[0].pos[0]}, {s.body[0].pos[1]}")
-            if cldx == False and cldy == False and x > 1:
+            if cldx == False and cldy == False and x > 0:
                 #print(f"B: ")
                 print(f"B: {s.body[x].pos[0]}, {s.body[x].pos[1]}; Index: {x}")
                 
@@ -373,8 +396,12 @@ def main():
 #                     print(f"{s.body[0].pos} will collide with {s.body[x].pos}")
             
             if s.body[x].pos in list(map(lambda z:z.pos, s.body[x+1:])):
-                print(f"\nGAME LOST!\n")
-                quit()
+                if len(s.body) > longest:
+                    longest = len(s.body)
+                    loseMsg = f"\nGame Over! Highscore: {longest*10}"
+                print(f"{loseMsg}")
+                #pygame.time.wait(3600000)
+                #quit()
                 if False:
                     messageBox(f"You lost with {len(s.body)*10} points!", "Play again?")
                 s.reset((random.randrange(20),random.randrange(20)))
@@ -397,13 +424,14 @@ headPosY = 0
 coords = []
 
 def start(PC):
-    global aiCon
+    global aiCon, loseMsg
     aiCon = PC
     try:
         main()
     except pygame.error as e:
         #Catches a false error when the game is closed.
         print(f"Game closed.\nFalse error: \"{str(e)}\"")
+        print(loseMsg)
         quit()
 #     except Exception as e:
 #         #Catches every other error.
